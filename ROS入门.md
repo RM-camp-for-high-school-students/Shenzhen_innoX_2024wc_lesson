@@ -145,7 +145,7 @@ rosrun turtlesim turtle_teleop_key
 
 然后，你应该可以使用方向键操作这个小海龟了：
 
-![](images\2024-01-15-10-04-58-image.png)
+![](images/2024-01-15-10-04-58-image.png)
 
 ## 项目创建与Vscode环境配置
 
@@ -171,13 +171,13 @@ catkin_make
 
 打开后，推荐安装以下拓展：
 
-![](images\2024-01-15-10-16-42-image.png)
+![](images/2024-01-15-10-16-42-image.png)
 
 安装后如果没有生效就多关闭重开几次，之后应该会在`.vscode`文件夹下看到自动生成的`c_cpp_properties.json`和`settings.json`。
 
 然后，右键src文件夹，选择`Create Catkin Package`：
 
-![](images\2024-01-15-10-24-04-image.png)
+![](images/2024-01-15-10-24-04-image.png)
 
 设置包名，这里叫`lesson`；再输入依赖项，这里我们需要`roscpp std_msgs tf2_ros`。
 
@@ -241,9 +241,9 @@ target_link_libraries(lesson ${catkin_LIBRARIES})
 
 现在，我们可以使用`rviz`查看静态坐标系变换了，在其中添加一个TF：
 
-![](images\2024-01-15-11-55-44-image.png)
+![](images/2024-01-15-11-55-44-image.png)
 
-![](images\2024-01-15-11-56-49-image.png)
+![](images/2024-01-15-11-56-49-image.png)
 
 第二题，以geometry_msgs::PoseStamped为类型，发布位姿点M（在A坐标系下）的位姿话题信息：
 
@@ -277,7 +277,7 @@ int main(int argc, char** argv)
 }
 ```
 
-![](images\2024-01-15-12-01-42-image.png)
+![](images/2024-01-15-12-01-42-image.png)
 
 第三题，以geometry_msgs::PoseStamped为类型，发布位姿点N（在B坐标系下）的位姿话题信息，使得点N与点M在空间中重合：
 
@@ -317,6 +317,6 @@ int main(int argc, char** argv)
 
 这里主要的关键点在坐标系转换，我课上会讲。
 
-![](images\2024-01-15-12-04-55-image.png)
+![](images/2024-01-15-12-04-55-image.png)
 
 第四题的截图已经在各个步骤中给出。文档里只给出了大致的代码解释，详细解释我会在课上讲述。
