@@ -1,16 +1,10 @@
-# AprilTag入门
+# WSL折腾USBCAM
 
-## 安装
+如果要使用WSL调用外置摄像头，需要折腾不少内容。我最后没能成功，画面是全黑，但是设备什么的都能检索到，仅记录下来以供参考。
 
-```shell
-sudo apt install ros-noetic-apriltag-ros
-sudo apt install ros-noetic-camera-calibration
-sudo apt install ros-noetic-usb-cam
-```
+**强烈建议使用原生Ubuntu系统来搞！**
 
 ## 编译WSL内核以安装驱动
-
-以下折腾全都是使用WSL情况下的坑，如果你使用的是其它类型的Ubuntu，可以跳过WSL相关部分。
 
 首先，安装依赖：
 
@@ -118,9 +112,3 @@ sudo chmod g+rw /dev/video*
 - [连接 USB 设备 | Microsoft Learn](https://learn.microsoft.com/zh-cn/windows/wsl/connect-usb)
 - [Xuanhoang214/WSL2-USB-CAMERA: Building your own USB/IP enabled WSL 2 kernel 5.10.102.1 (github.com)](https://github.com/Xuanhoang214/WSL2-USB-CAMERA)
 - [WSL support · dorssel/usbipd-win Wiki (github.com)](https://github.com/dorssel/usbipd-win/wiki/WSL-support)
-
-## 标定摄像头
-
-```shell
-roslaunch usb_cam usb_cam-test.launch
-```
