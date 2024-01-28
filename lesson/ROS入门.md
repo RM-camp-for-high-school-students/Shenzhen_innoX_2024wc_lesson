@@ -250,3 +250,162 @@ int main(int argc, char** argv)
 ![](images/2024-01-15-12-04-55-image.png)
 
 第四题的截图已经在各个步骤中给出。文档里只给出了大致的代码解释，详细解释我会在课上讲述。
+
+## 自定义消息
+
+ROS自带很多消息类型，但它们不一定可以满足我们的需要，此时就需要我们自定义一个消息类型了，接下来会简单教大家如何使用。
+
+首先，新建一个名为lesson_msg的包，依赖为`roscpp std_msgs`，在其中新建msg文件夹，在文件夹中新建一个lesson.msg文件，输入以下内容：
+
+```
+int32 int32_msg
+string string_msg
+```
+
+前者是消息类型，后者是消息的名字，消息类型支持嵌套，即可以使用ROS自带的部分消息类型。之后，在package.xml中添加以下两行：
+
+```xml
+<build_depend>message_generation</build_depend>
+<exec_depend>message_runtime</exec_depend>
+```
+
+CMakeLists.txt中也有不少需要修改的部分，详细如下：
+
+```cmake
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  std_msgs
+  message_generation # 这一行需要添加
+)
+# 以下内容需要取消注释并按照需求修改
+add_message_files(
+  FILES
+  lesson.msg
+)
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+catkin_package(
+  CATKIN_DEPENDS roscpp std_msgs message_runtime
+)
+```
+
+然后就可以编译了，编译完成后可以在`devel/include`下看到编译后的头文件，之后记得用`Ctrl+P`中的`>ROS: Update C++ Properties`更新依赖。
+
+## 消息的发送
+
+我们创建一个名为lesson_publisher的包，依赖为`roscpp std_msgs lesson_msg`，在src文件夹中创建lesson_publisher.cpp，并在CMakeLists.txt末尾新增以下两行：
+
+```cmake
+add_executable(lesson_publisher src/lesson_publisher.cpp)
+target_link_libraries(lesson_publisher ${catkin_LIBRARIES})
+```
+
+然后编写lesson_publisher.cpp：
+
+```cpp
+#include <ros/ros.h>
+#include "lesson_msg/lesson.h"
+
+int main(int argc, char** argv)
+{
+    ros::init(argc, argv, "lesson_publisher");
+    ros::NodeHandle nh;
+    ros::Publisher pub = nh.advertise<lesson_msg::lesson>("lesson_topic", 100);
+    ros::Rate rate(10);
+    unsigned int count = 0;
+    while (ros::ok())
+    {
+        lesson_msg::lesson msg;
+        msg.lesson_uint32 = count++;
+        msg.lesson_string = "Hello, world! " + std::to_string(count);
+        ROS_INFO("%s", msg.lesson_string.c_str());
+        pub.publish(msg);
+        ros::spinOnce;
+        rate.sleep();
+    }
+    return 0;
+}
+```
+
+用`Ctrl+Shift+B`中的`catkin_make: build`来编译项目。
+
+用`Ctrl+P`中的`>ROS: Start`启动roscore，之后，使用`>Ros: Run`启动包。
+
+```
+zzh@Moon-R9000P:~/ros$ rosrun lesson_publisher lesson_publisher 
+[ INFO] [1706430599.286841193]: Hello, world! 1
+[ INFO] [1706430599.386918214]: Hello, world! 2
+[ INFO] [1706430599.486943971]: Hello, world! 3
+[ INFO] [1706430599.587006954]: Hello, world! 4
+[ INFO] [1706430599.686953161]: Hello, world! 5
+[ INFO] [1706430599.786933171]: Hello, world! 6
+[ INFO] [1706430599.887183610]: Hello, world! 7
+[ INFO] [1706430599.987185551]: Hello, world! 8
+[ INFO] [1706430600.086967210]: Hello, world! 9
+[ INFO] [1706430600.186933321]: Hello, world! 10
+```
+
+可以使用`rostopic list`查看所有正在发布的消息，在工作目录新建一个终端，使用`source devel/setup.bash`更新依赖，然后可以使用`rostopic echo /lesson_topic`查看消息：
+
+```
+zzh@Moon-R9000P:~/ros$ rostopic echo /lesson_topic
+lesson_uint32: 2699
+lesson_string: "Hello, world! 2700"
+---
+lesson_uint32: 2700
+lesson_string: "Hello, world! 2701"
+---
+lesson_uint32: 2701
+lesson_string: "Hello, world! 2702"
+---
+lesson_uint32: 2702
+lesson_string: "Hello, world! 2703"
+---
+lesson_uint32: 2703
+lesson_string: "Hello, world! 2704"
+---
+```
+
+## 消息的接收
+
+我们创建一个名为lesson_subscriber的包，依赖为`roscpp std_msgs lesson_msg`，在src文件夹中创建lesson_subscriber.cpp，并在CMakeLists.txt末尾新增以下两行：
+
+```cmake
+add_executable(lesson_subscriber src/lesson_subscriber.cpp)
+target_link_libraries(lesson_subscriber ${catkin_LIBRARIES})
+```
+
+然后编写lesson_subscriber.cpp：
+
+```cpp
+#include <ros/ros.h>
+#include "lesson_msg/lesson.h"
+
+void topicCallback(lesson_msg::lesson msg)
+{
+    ROS_INFO("[%d] %s", msg.lesson_uint32, msg.lesson_string.c_str());
+}
+
+int main(int argc, char** argv)
+{
+    ros::init(argc, argv, "lesson_subscriber");
+    ros::NodeHandle nh;
+    ros::Subscriber sub = nh.subscribe("lesson_topic", 100, topicCallback);
+    ros::spin();
+    return 0;
+}
+```
+
+用`Ctrl+Shift+B`中的`catkin_make: build`来编译项目。
+
+用`Ctrl+P`中的`>ROS: Start`启动roscore，之后，使用`>Ros: Run`启动包。
+
+左边是publisher，右边是subscriber，它们成功一起运行了。
+
+![](images/2024-01-28-16-49-07.png)
+
+这时使用`rqt_graph`来看一下消息图：
+
+![](images/2024-01-28-16-52-38.png)
