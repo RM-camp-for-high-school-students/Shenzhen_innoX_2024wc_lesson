@@ -1,6 +1,5 @@
 # GPT原理和应用
 
-
 ## ChatGPT背后的Transformer
 
 一切的生成式AI的起点：2017《Attention is all you need》
